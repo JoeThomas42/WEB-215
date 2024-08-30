@@ -1,5 +1,5 @@
 // Task 1
-`use strict`;
+'use strict';
 
 // Task 2
 const student = `Joseph Thomas`;
