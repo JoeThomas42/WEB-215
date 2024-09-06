@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 // user definable variables
 let species = `Teak`;

@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 // converts string into decimal
 // parseFloat(); 

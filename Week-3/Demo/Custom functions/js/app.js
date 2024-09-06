@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 // calcArea(); // hoisting, functions are always loaded first so this works
 
