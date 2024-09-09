@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * Task 1: Constructs and console.logs a message about WEB-215
+ * Task 1: Constructs and renders a message about a subject and its contents
  */
 
 function courseDescription() {
