@@ -4,8 +4,8 @@
  * Receives the bill, tip, and number of people to calculate how much everyone owes and display the results
  * 
  * @param  {number} bill - the bill in dollars.cents
- * @param  {number} tipPercent - the tip to be applied in percentage
- * @param  {number} numPeople - the number of people who will be splitting the tip
+ * @param  {number} [tipPercent = 20]  - the tip to be applied in percentage (optional)
+ * @param  {number} [numPeople = 1] - the number of people who will be splitting the tip (optional)
  */
 
 function totalPerPerson(bill, tipPercent = 20, numPeople = 1) {
@@ -28,10 +28,12 @@ function totalPerPerson(bill, tipPercent = 20, numPeople = 1) {
   const oddOneOutCents = oddOneOut(evenShareCents, remainderCents);
   const oddOneOutDollars = centsToDollars(oddOneOutCents);
 
-  let output = `A ${tipPercent}% tip on $${billInDollars} is $${tipDollars}.\n` +
-  `The total bill plus tip is $${totalCostDollars}.\n` +
-  `Split between ${numPeople} people, it's $${evenShareDollars} each.\n` +
-  `But with $${remainderDollars} that can’t be split, one person owes $${oddOneOutDollars}.`;
+  let output = `
+  A ${tipPercent}% tip on ${billInDollars} is ${tipDollars}.
+  The total bill plus tip is ${totalCostDollars}.
+  Split between ${numPeople} people, it's ${evenShareDollars} each.
+  But with ${remainderDollars} that can’t be split, one person owes ${oddOneOutDollars}.
+  `;
 
   console.log(output);
 }
@@ -53,11 +55,11 @@ function dollarsToCents(dollars) {
  * 
  * @param {number} cents - amount in cents
  * 
- * r@returns {number} amount in dollars
+ * @returns {string} amount in dollars, formatted with a dollar sign
  */
 
 function centsToDollars(cents) {
-  return (cents / 100).toFixed(2);
+  return `$${(cents / 100).toFixed(2)}`;
 }
 
 /**
@@ -130,7 +132,7 @@ function remainder(totalCostCents, numPeople) {
  * @param {number} evenShareCents - the split amount without the remainder in cents
  * @param {number} remainderCents - the amount of the remainder in cents
  * 
- * @returns {number} -the total amount the odd one out has to pay
+ * @returns {number} -the total amount the odd one out has to pay in cents
  */
 
 function oddOneOut(evenShareCents, remainderCents) {
