@@ -3,12 +3,16 @@ Task 1
 ensure your code adheres to strict syntax
 */
 
+'use strict'
+
 /*
 Task 2
 Use a PROPERTY to get all the links on the page. 
 Store them in a variable named: allLinks
 log the variable to the console
 */
+
+let allLinks = document.links;
 
 /*
 Task 3
@@ -17,12 +21,16 @@ Store it in a variable named: pageHeading.
 Use the variable and a PROPERTY to change the text to: PoC 3
 */
 
+let pageHeading = document.getElementsByTagName('h1');
+
 /*
 Task 4
 Use a METHOD to insert text adjacent to the heading text so that your first/last name is appended to the end. The final should read:
 PoC 3: First Last
 Feel free to use the variable created in the previous task.
 */
+
+
 
 /*
 Task 5
