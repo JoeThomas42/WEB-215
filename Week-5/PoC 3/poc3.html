@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <title>POC 3</title>
+    <link href="css/styles.css" rel="stylesheet">
+    <script src="js/poc3.js" defer></script>
+  </head>
+
+  <body>
+    <header>
+      <h1 class="darkBg upper">Proof of Concept 3: <abbr title="document object model">DOM</abbr></h1>
+      <p>Recall that methods are essentially functions that are built in to an object. Methods, as they are functions, require parenthesis after the method name and sometimes require arguments. Properties, unlike methods, do not require parenthesis and are set via an equal sign.</p>
+      <p>Elements can be accessed via properties or methods. Elements can also be manipulated via methods or properties.</p>
+    </header>
+    <div id="columns">
+      <section id="methods">
+        <h2>Some Helpful Methods</h2>
+        <h6>Selecting Elements</h6>
+        <ul data-listCategory="howToSelect">
+          <li><code><a href="https://developer.mozilla.org/en-US/docs/Web/API/Element/getElementsByClassName">getElementByClassName()</a></code></li>
+          <li><code><a href="https://developer.mozilla.org/en-US/docs/Web/API/Document/getElementById">getElementById()</a></code></li>
+          <li><code><a href="https://developer.mozilla.org/en-US/docs/Web/API/Document/getElementsByTagName">getElementsByTagName()</a></code></li>
+          <li><code><a href="https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelector">querySelector()</a></code></li>
+          <li><code><a href="https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelectorAll">querySelectorAll()</a></code></li>
+        </ul>
+        <h3>Manipulating <abbr title="Cascading Stylesheets">CSS</abbr> Classes</h3>
+        <ul data-listCategory="css">
+          <li><code><a href="https://developer.mozilla.org/en-US/docs/Web/API/Element/classList">add()</a></code></li>
+          <li><code><a href="https://developer.mozilla.org/en-US/docs/Web/API/Element/classList">remove()</a></code></li>
+          <li><code><a href="https://developer.mozilla.org/en-US/docs/Web/API/Element/classList">toggle()</a></code></li>
+        </ul>
+        <h3>Creating and Inserting Elements</h3>
+        <ul data-listCategory="elements">
+          <li><code><a href="https://developer.mozilla.org/en-US/docs/Web/API/Node/appendChild">appendChild()</a></code></li>
+          <li><code><a href="https://developer.mozilla.org/en-US/docs/Web/API/Document/createElement">createElement()</a></code></li>
+          <li><code><a href="https://developer.mozilla.org/en-US/docs/Web/API/Element/insertAdjacentElement">insertAdjacentElement()</a></code></li>
+          <li><code><a href="https://developer.mozilla.org/en-US/docs/Web/API/Element/replaceWith">replaceWith()</a></code></li>
+        </ul>
+        <h3>Inserting Text</h3>
+        <ul data-listCategory="text">
+          <li><code><a href="https://developer.mozilla.org/en-US/docs/Web/API/Element/insertAdjacentText">insertAdjacentText()</a></code></li>
+        </ul>
+      </section>
+
+      <section id="properties">
+        <h2>Some Helpful Properties</h2>
+        <h3>Selecting Elements</h3>
+        <ul data-listCategory="howToSelect">
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Document">some elements</a>, such as <code>document.links</code>, <code>document.forms</code>, and <code>document.body</code></li>
+        </ul>
+        <h3>Manipulating <abbr title="Cascading Stylesheets">CSS</abbr></h3>
+        <ul data-listCategory="css">
+          <li><code><a href="https://developer.mozilla.org/en-US/docs/Web/API/Element/classList">classList</a></code></li>
+          <li><code><a href="https://developer.mozilla.org/en-US/docs/Web/API/CSSStyleDeclaration/cssText">cssText</a></code></li>
+        </ul>
+        <h3>Manipulating <abbr title="Hypertext Markup Language">HTML</abbr></h3>
+        <ul data-listCategory="html">
+          <li><code><a href="https://developer.mozilla.org/en-US/docs/Web/API/Element/innerHTML">innerHTML</a></code></li>
+          <li><code><a href="https://developer.mozilla.org/en-US/docs/Web/API/Element/outerHTML">outerHTML</a></code></li>
+        </ul>
+        <h3>Manipulating Text</h3>
+        <ul data-listCategory="text">
+          <li><code><a href="https://developer.mozilla.org/en-US/docs/Web/API/Node/textContent">textContent</a></code></li>
+        </ul>
+        <h3>Manipulating Attributes</h3>
+        <ul data-listCategory="attributes">
+          <li>standard attributes, such as <code><a href="https://developer.mozilla.org/en-US/docs/Web/API/Element/id">element.id</a></code> and <code><a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLAnchorElement/href">element.href</a></code></li>
+        </ul>
+      </section>
+    </div>
+    <footer>Brought to you by WEB-215, Vanilla JavaScript</footer>
+  </body>
+
+</html>

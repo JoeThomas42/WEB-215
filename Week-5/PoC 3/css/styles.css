@@ -1,0 +1,28 @@
+section {
+  border: 1px solid #333;
+  border-radius: 1rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+}
+
+.darkBg {
+  background-color: #333;
+  color: #fff;
+}
+
+.upper {
+  text-transform: uppercase;
+}
+
+.title {
+  text-transform: capitalize;
+}
+
+#columns {
+  display: flex;
+  gap: 1rem;
+}
+
+#columns > section {
+  flex: 1;
+}
