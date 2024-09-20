@@ -13,6 +13,7 @@ log the variable to the console
 */
 
 let allLinks = document.links;
+console.log(allLinks);
 
 /*
 Task 3
@@ -21,7 +22,8 @@ Store it in a variable named: pageHeading.
 Use the variable and a PROPERTY to change the text to: PoC 3
 */
 
-let pageHeading = document.getElementsByTagName('h1');
+let pageHeading = document.querySelector('h1');
+pageHeading.textContent = 'PoC 3';
 
 /*
 Task 4
@@ -30,7 +32,7 @@ PoC 3: First Last
 Feel free to use the variable created in the previous task.
 */
 
-
+pageHeading.insertAdjacentText('beforeEnd', ': Joe Thomas');
 
 /*
 Task 5
@@ -40,6 +42,10 @@ Add the new h2 to the page immediately after the h1. Be sure to generate valid H
 Feel free to use the heading variable created earlier.
 */
 
+let h2 = document.createElement('h2');
+h2.textContent = 'DOM Exploration';
+pageHeading.insertAdjacentElement('afterEnd', h2);
+
 /*
 Task 6
 Use a PROPERTY to get the list of all classes applied to the H1.
@@ -48,12 +54,18 @@ Store this list in a variable named: headingClasses
 log the variable to the console
 */
 
+let headingClasses = pageHeading.classList;
+console.log(headingClasses);
+
 /*
 Task 7
 Use a method to remove the 'upper' class from the H1.
 Use a method to add the 'title' class to the H1.
 Feel free to use the heading variable created earlier.
 */
+
+headingClasses.remove('upper');
+headingClasses.add('title');
 
 /*
 Task 8
@@ -64,12 +76,17 @@ border-radius: 1rem;
 padding: .5rem;
 */
 
+document.querySelector('header p:last-of-type').style.cssText = 'font-style: italic; border: 1px solid #333; border-radius: 1rem; padding: .5rem;';
+
 /*
 Task 9
 Use a PROPERTY to get the HREF value of the first link on the page.
 Store it in a variable named: link1
 Log the variable to the console.
 */
+
+let link1 = document.querySelector('a').href;
+console.log(link1);
 
 /*
 Task 10
@@ -84,12 +101,20 @@ You will do the same thing two different ways
    Log the variable to the console.
 */
 
+let link2a = document.querySelector('body div section ul li:nth-of-type(2) a').getAttribute('href');
+console.log(link2a);
+
+let link2b = document.getElementsByTagName('a')[1].getAttribute('href');
+console.log(link2b);
+
 /*
 Task 11
 Use a METHOD to add target="_blank" to the first link on the page.
 Be sure to test the link!
-Use a variable from the previous task.
+Use a variable from the previous task. <------------- NOT SURE HOW TO DO THIS <--------------
 */
+
+document.querySelector('a').setAttribute('target', '_blank');
 
 /*
 Task 12
@@ -98,16 +123,23 @@ Store it in a variable named: listCat
 Log the variable to the console.
 */
 
+let listCat = document.querySelector('ul').dataset.listcategory;
+console.log(listCat);
+
 /*
 Task 13
 Without creating any new elements, change the content of the SECTION with an ID of 'properties' to the following HTML:
 <p>This <abbr title="Hypertext Markup Language">HTML</abbr> content has been changed.</p>
 */
 
+document.querySelector('section#properties').innerHTML = '<p>This <abbr title="Hypertext Markup Language">HTML</abbr> content has been changed.</p>';
+
 /*
 Task 14
 Remove the footer from the page
 */
+
+document.querySelector('footer').remove();
 
 /*
 Task 15
@@ -117,3 +149,9 @@ Use a METHOD to create a new H3 element, stored in a variable named: newH3
 Set the text of newH3 to be the same as the text of the h6, currently stored in the h6Text variable
 Use a METHOD to replace the h6 element with the new h3 element.
 */
+
+let h6 = document.querySelector('h6');
+let h6Text = h6.textContent;
+let newH3 = document.createElement('h3');
+newH3.textContent = h6Text;
+h6.replaceWith(newH3);
