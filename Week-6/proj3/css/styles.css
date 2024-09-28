@@ -1,0 +1,34 @@
+/*
+Do not edit any CSS
+*/
+
+.columns {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+}
+
+.border {
+  border: 1px dashed #333;
+  margin-bottom: 1rem;
+  padding: .5rem;
+}
+
+.zebraList {
+  font-style: italic;
+  list-style-position: inside;
+}
+
+.zebraList li {
+  background-color: #b1b3c5;
+  padding: 0.5rem;
+}
+
+.zebraList li:nth-of-type(even) {
+  background-color: #ddd;
+}
+
+footer {
+  border-top: 1px solid #333;
+  padding-top: 1rem;
+}
