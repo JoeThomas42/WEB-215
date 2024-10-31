@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <title>PoC 4</title>
+    <link href="css/styles.css" rel="stylesheet">
+    <script src="js/poc4.js" defer></script>
+  </head>
+
+  <body>
+    <h1>PoC 4: Events</h1>
+
+    <form action="." method="get">
+      <label for="new-heading">Text for new heading:</label><br>
+      <input type="text" id="new-heading" name="new-heading"><br>
+      <label for="text-size">Text size:</label><br>
+      <div id="size-controls">
+        <input type="range" id="text-size" name="text-size" min="16" max="72" value="32" autocomplete="off"><br>
+        <span id="size-text"></span>
+      </div>
+      <input type="submit" value="Change the text">
+    </form>
+
+    <button data-door="1">Door #1</button>
+    <button data-door="2">Door #2</button>
+    <button data-door="3">Door #3</button>
+
+    <div id="modalOuterBox">
+      <div id="modalContent">
+        <span id="close">&times;</span>
+        <div data-desc="content">PLACEHOLDER STARTER TEXT</div>
+      </div>
+    </div>
+    
+  </body>
+
+</html>
