@@ -29,10 +29,11 @@ function showModal(entries) {
 // Agree checkbox and button
 const agree = document.getElementById('agree');
 agree.addEventListener('change', () => {
+  const agreeBtn = document.querySelector('input[type="submit"]')
   if(agree.checked){
-    document.querySelector('input[type="submit"]').disabled = false;
+    agreeBtn.disabled = false;
   } else{
-    document.querySelector('input[type="submit"]').disabled = true;
+    agreeBtn.disabled = true;
   }
 })
 
