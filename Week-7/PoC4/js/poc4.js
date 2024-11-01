@@ -40,6 +40,8 @@ function handleSlider(){
 /**
  * Calculates the new position for the size text label based on the slider's value.
  * 
+ * @returns {number} The calculated new percentage position for the size text label.
+ * 
  * Adapted from https://css-tricks.com/value-bubbles-for-range-inputs/
  */
 function calculateLabelPos() {
@@ -63,6 +65,8 @@ doors.forEach(function(el){
 
 /**
  * Handles the game logic when a door button is clicked.
+ * 
+ * @this {HTMLElement} The button element that was clicked.
  */
 function buttonGame(){
   const door = parseInt(this.dataset.door);
