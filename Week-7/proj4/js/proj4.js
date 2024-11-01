@@ -7,7 +7,10 @@ ob.observe(trigger);
 
 // Define outer modal wrapper and close it
 const outer = document.getElementById('outer');
-document.querySelector('input[type="button"]').addEventListener('click', () => {outer.style.display = 'none'});
+document.querySelector('input[type="button"]').addEventListener('click', () => {
+  outer.style.display = 'none';
+  agree.checked = false;
+});
 
 /**
  * Callback function for IntersectionObserver that displays the `#outer` element
@@ -25,7 +28,7 @@ function showModal(entries) {
 
 // Agree checkbox and button
 const agree = document.getElementById('agree');
-agree.addEventListener('click', function(){
+agree.addEventListener('change', () => {
   if(agree.checked){
     document.querySelector('input[type="submit"]').disabled = false;
   } else{
@@ -34,7 +37,7 @@ agree.addEventListener('click', function(){
 })
 
 // Form submit listener
-document.querySelector('input[type="submit"]').addEventListener('submit', handleForm);
+document.querySelector('form').addEventListener('submit', handleForm);
 
 function handleForm(e) {
   e.preventDefault();
