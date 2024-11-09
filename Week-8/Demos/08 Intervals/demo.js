@@ -20,7 +20,7 @@ function reminder() {
 setTimeout(stopTimer, 60000);
 
 // stop with an action
-document.querySelector('p'),addEventListener('click', stopTimer);
+document.querySelector('p').addEventListener('click', stopTimer);
 
 // clearInterval to stop
 function stopTimer() {

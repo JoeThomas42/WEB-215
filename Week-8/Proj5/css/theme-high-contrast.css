@@ -1,0 +1,23 @@
+:root {
+  --border-color: #000;
+  --page-bg: #000;
+  --page-txt: #333;
+  --section-bg: #000;
+  --section-txt: #fff;
+  --header-bg: #333;
+  --header-txt: #ddd;
+  --shadow-color: #fff;
+  --img-bg: #ddd;
+}
+
+body #wrapper {
+  max-width: 39rem;
+}
+
+img {
+  filter: contrast(2);
+}
+
+header {
+  color: #ddd;
+}

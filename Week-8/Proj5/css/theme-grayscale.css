@@ -1,0 +1,28 @@
+:root {
+  --border-color: #000;
+  --page-bg: #ddd;
+  --page-txt: #333;
+  --section-bg: #fff;
+  --section-txt: #000;
+  --header-bg: #ccc;
+  --header-txt: #000;
+  --shadow-color: #000;
+  --img-bg: #aaa;
+}
+
+img {
+  filter: grayscale(1);
+}
+
+body #wrapper {
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  max-width: 1500px;
+  min-width: none;
+  width: 100%;
+}
+
+header {
+  grid-column: 1/-1;
+}

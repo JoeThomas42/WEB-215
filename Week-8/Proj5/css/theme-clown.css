@@ -1,0 +1,19 @@
+:root {
+  --border-color: #fff;
+  --page-bg: #f08b06;
+  --page-txt: #333;
+  --section-bg: #6ff23f;
+  --section-txt: #000;
+  --header-bg: #962689;
+  --header-txt: #fff;
+  --shadow-color: rgb(246, 255, 0);
+  --img-bg: #ddd;
+}
+
+img {
+  filter: saturate(3);
+}
+
+header {
+  color: #61325e;
+}

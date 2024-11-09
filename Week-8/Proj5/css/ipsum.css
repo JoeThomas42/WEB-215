@@ -1,0 +1,87 @@
+html {
+  font: 17px/1.5 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
+body {
+  background-color: var(--page-bg);
+  color: var(--page-txt);
+}
+
+#wrapper {
+  margin: 0 auto;
+  max-width: 960px;
+  min-width: 500px;
+  width: 85%;
+}
+
+h1 {
+  background-color: var(--header-bg);
+  border-radius: .5rem .5rem 0 0;
+  color: var(--header-txt);
+  margin-top: 0;
+  padding: .5rem;
+}
+
+img {
+  background-color: var(--img-bg);
+  border: 5px solid var(--border-color);
+  border-radius: .33rem;
+  float: left;
+  margin: 0 1rem 1rem;
+  padding: .5rem;
+}
+
+section {
+  background-color: var(--section-bg);
+  border: 1px solid var(--border-color);
+  border-radius: .5rem;
+  box-shadow: 0 0 10px var(--shadow-color);
+  color: var(--section-txt);
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  overflow: hidden;
+}
+
+h2,
+h3,
+p {
+  margin-left: 1rem;
+  margin-right: 1rem;
+}
+
+#theme {
+  cursor: pointer;
+  font-style: italic;
+  text-decoration: underline;
+}
+
+#style-picker {
+  background-color: #fff;
+  color: #000;
+  display: none;
+  left: 0;
+  margin: 0 auto;
+  padding-top: 1rem;
+  position: fixed;
+  right: 0;
+  top: -1rem;
+  text-align: center;
+  width: 400px;
+}
+
+#style-picker ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+button {
+  cursor: pointer;
+  margin-bottom: 1rem;
+  padding: .5rem;
+  text-align: left;
+  width: 200px;
+}
+
+button:disabled {
+  cursor: default;
+}
