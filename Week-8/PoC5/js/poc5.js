@@ -118,6 +118,7 @@ const nameInput = document.getElementById('name');
 const doneButton = document.querySelector('input[type="submit"]');
 let timer = null;
 
+doneButton.disabled = true;
 startButton.addEventListener('click', startTimer);
 form.addEventListener('submit', handleSubmit);
 document.addEventListener('keydown', handleEnterKey);
