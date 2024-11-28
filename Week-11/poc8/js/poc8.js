@@ -30,18 +30,16 @@ Task 1: Iterate through the DOM and integrate event listeners
 const links = document.getElementsByTagName('a');
 const arrLinks = Array.from(links);
 
-console.group('Task 1');
-
 arrLinks.forEach (link => {
   link.addEventListener('click', e => {
     e.preventDefault();
-    const displayLinks = `${link.textContent}: ${link.href}`;
+    const displayLinks = `${link.textContent}: ${link.getAttribute('href')}`;
+    console.group('Task 1');
     console.log(displayLinks);
+    console.groupEnd();
   })
 })
 
-console.groupEnd();
-  
 
 
 /*
@@ -51,8 +49,8 @@ Task 2: Iterate through an array, performing a function on each member
 */
 
 arrLinks.forEach(link => {
-  if (link.href.startsWith('http')) {     // my live server seems to add http to every link no matter what, but I think this is what you're asking for
-    link.textContent += '↗️';            // I got it to work correctly with: "if (!link.href.endsWith('html'))"
+  if (link.getAttribute('href').startsWith('http')) {
+    link.textContent += '↗️';
   }
 })
 
@@ -66,7 +64,7 @@ Task 3: Iterate over an array to find all members meeting criteria
 */
 console.group('Task 3');
 
-const externalLinks = arrLinks.filter(link => link.href.startsWith('http'));  // same situation as the previous task
+const externalLinks = arrLinks.filter(link => link.getAttribute('href').startsWith('http'));
 console.log(externalLinks);
 
 console.groupEnd();
@@ -82,7 +80,7 @@ Task 4: Iterate over an array to find the first member meeting criteria
 */
 console.group('Task 4');
 
-const firstInternalLink = arrLinks.find(link => !link.href.startsWith('http'));   // and again. used: "link.href.endsWith('html')" to get desired result
+const firstInternalLink = arrLinks.find(link => !link.getAttribute('href').startsWith('http'));
 console.log(firstInternalLink);
 
 console.groupEnd();
