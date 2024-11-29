@@ -10,9 +10,16 @@ When finished with the JS, examine the generated HTML and ensure you have genera
   HINT: Use the Dev Tools Inspector > ELements tab to view the generated HTML
 */
 
+//---- Global variants to track sort method ----//
+let sortColumn = 'position';
+let sortOrder = 'asc';
+
 makeMenu();
 getTracks();
 
+/**
+ * Creates and inserts the album selection menu into the DOM.
+ */
 function makeMenu() {
   // get the H1 for later use
   const h1 = document.querySelector('h1');
@@ -51,6 +58,9 @@ function makeMenu() {
   // edit the DOM: insert the select after the label
   label.insertAdjacentElement('afterend', select);
 
+  //--- Disables default "choose and album" after one is selected ----//
+  defaultOption.disabled = true;
+
       /**********************************
       SANITY CHECK:
       You should now have a select menu on the page, label to its left, and populated with six options in this order:
@@ -63,6 +73,9 @@ function makeMenu() {
       **********************************/
 }
 
+/**
+ * Adds an event listener to the album selection dropdown to handle album changes.
+ */
 function getTracks() {
   // add event listener to select, listening for change event
   // anonymous callback function should:
@@ -75,18 +88,25 @@ function getTracks() {
   select.addEventListener('change', function() {
     const selectedAlbumName = this.value;
     const selectedAlbum = albums.find(album => album.name === selectedAlbumName);
+
     if (!selectedAlbum) return;
+
     const tracks = selectedAlbum.tracks;
     makeTable(tracks);
   });
 }
 
+/**
+ * Generates and inserts a table of tracks into the DOM based on the selected album.
+ *
+ * @param {Array} tracks - An array of track objects to display in the table.
+ * @param {string} [orderBy='position'] - The column to sort the tracks by.
+ */
 function makeTable(tracks, orderBy = 'position') {
         /**********************************
         SANITY CHECK:
         try console.table(tracks) and when you change your menu selection on the page, the console should show the list of songs for the selected album
         **********************************/
-  console.table(tracks);
 
   // create a table with id: trackListing
   // create a tr and append it to the table
@@ -94,10 +114,13 @@ function makeTable(tracks, orderBy = 'position') {
   // edit the DOM: insert the table after the select
   const existingTable = document.getElementById('trackListing');
   existingTable ? existingTable.remove() : null;
+
   const table = document.createElement('table');
   table.id = 'trackListing';
+
   const tableHeader = document.createElement('tr');
   table.appendChild(tableHeader);
+
   const select = document.getElementById('albumSelect');
   select.insertAdjacentElement('afterend', table);
 
@@ -110,10 +133,19 @@ function makeTable(tracks, orderBy = 'position') {
   // Append the th it to the tr
   const firstTrack = tracks[0];
   const keys = Object.keys(firstTrack);
+
   keys.forEach(key => {
     const th = document.createElement('th');
     th.textContent = key;
     th.setAttribute('scope', 'col');
+
+    //---- Add sort indicator if this is current column ---//
+    if (key.toLowerCase() === sortColumn) {
+      const sortIndicator = document.createElement('span');
+      sortIndicator.textContent = sortOrder === 'asc' ? ' ▲' : ' ▼';-
+      th.appendChild(sortIndicator);
+    }
+
     th.addEventListener('click', () => sortOnClick(th, tracks));
     tableHeader.appendChild(th);
   });
@@ -129,7 +161,7 @@ function makeTable(tracks, orderBy = 'position') {
   // create a variable to store the sorted/ordered tracks
   // set the variable equal to a function: sortTable
   // pass that function the tracks variable and the orderBy variable
-  const sortedTracks = sortTable(tracks,orderBy);
+  const sortedTracks = sortTable(tracks, orderBy, sortOrder);
 
   // Iterate through the sorted tracks and for each one:
   // create a new tr
@@ -139,30 +171,69 @@ function makeTable(tracks, orderBy = 'position') {
   // append the tr to the table
   sortedTracks.forEach(track => {
     const tr = document.createElement('tr');
+
     const tdPosition = document.createElement('td');
     tdPosition.textContent = track.position;
     tr.appendChild(tdPosition);
+    
     const tdTitle = document.createElement('td');
     tdTitle.textContent = track.title;
     tr.appendChild(tdTitle);
+
     const tdTime = document.createElement('td');
     tdTime.textContent = track.time;
     tr.appendChild(tdTime);
+
     table.appendChild(tr);
   })
 }
 
-function sortTable(tracks, orderBy) {
+/**
+ * Sorts the tracks array based on the specified column and order.
+ *
+ * @param {Array} tracks - The array of track objects to sort.
+ * @param {string} orderBy - The key of the track object to sort by.
+ * @param {string} [order='asc'] - The sort order (asc or desc).
+ * 
+ * @returns {Array} - The sorted array of track objects.
+ */
+function sortTable(tracks, orderBy, order = 'asc') {
   // Order the tracks by the orderBy string that was passed, storing them in an array
   // return the new array
-  return _.sortBy(tracks, [orderBy]);
+
+  //---- Order tracks by passed orderBy string ----//
+  let sorted = _.sortBy(tracks, [orderBy]);
+
+  //---- If order is desc reverse the sorted array ----//
+  if (order === 'desc') {
+    sorted = sorted.reverse();
+  }
+
+  return sorted;
 }
 
+/**
+ * Handles the sorting when a table header is clicked.
+ *
+ * @param {HTMLElement} th - The table header element that was clicked.
+ * @param {Array} tracks - The array of track objects to sort.
+ */
 function sortOnClick(th, tracks) {
   // Get the text content of the clicked th and store it in a variable named: clickedText
   // Call the sortTable function, passing it the tracks (one of the parameters from this sortOnCLick function) and clickedText; store the returned value in a variable named: sortedTracks
   // call makeTable, passing it the sortedTracks and clickedText variables
-  const clickedText = th.textContent.toLowerCase();
+
+  //--- Strips and replaces the indicator ----//
+  const clickedText = th.textContent.toLowerCase().replace(' ▲', '').replace(' ▼', '');
+
+  //---- Toggle sort order ----//
+  if (clickedText === sortColumn) {
+    sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortColumn = clickedText;
+    sortOrder = 'asc';
+  }
+
   const sortedTracks = sortTable(tracks, clickedText);
   makeTable(sortedTracks, clickedText);
 }

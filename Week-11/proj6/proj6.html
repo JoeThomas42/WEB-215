@@ -7,12 +7,16 @@
     <script src="https://www.unpkg.com/lodash" defer></script>
     <script src="js/data.js"></script>
     <script src="js/proj6.js" defer></script>
+
+    <!-- Modified and added rules to stop the table from changing size when the indicator arrow moves -->
+    
     <style>
       table {
         background-color: #333;
         border-collapse: collapse;
         color: #fff;
         margin-top: 2rem;
+        width: 500px;
       }
 
       tr:not(:first-of-type) {
@@ -27,12 +31,21 @@
       td,
       th {
         padding: .5rem;
+        text-align: left;
       }
 
       th {
         cursor: pointer;
+        padding-right: 25px;
+        position: relative;
         text-transform: capitalize;
+        width: auto;
       }
+
+      th span {
+      position: absolute;
+      right: 5px;
+    }
     </style>
   </head>
 
