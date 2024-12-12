@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <title>Web Storage</title>
+    <link href="css/styles.css" rel="stylesheet">
+    <script src="js/storage.js" defer></script>
+  </head>
+
+  <body>
+    <h1>Web Storage</h1>
+    <form action="some-php-file-that-does-not-exist.php" method="post">
+      <label for="name">Name:</label>
+      <input type="text" id="name" name="name" required><br>
+      <label for="language">Favorite Language:</label>
+      <select id="language" name="language" required>
+        <option value="">Choose your favorite language:</option>
+        <option>HTML</option>
+        <option>CSS</option>
+        <option>JavaScript</option>
+        <option>PHP</option>
+        <option>SQL</option>
+      </select>
+      <fieldset>
+        <legend>Are you a WEB major?</legend>
+        <input type="radio" name="major" value="yes" id="yes" required>
+        <label for="yes">Yes, I am a WEB major</label><br>
+        <input type="radio" name="major" value="no" id="no">
+        <label for="no">No, I am not a WEB major</label>
+      </fieldset>
+      <input type="submit" value="Save My Changes">
+      <input type="button" value="Forget Me">
+    </form>
+  </body>
+
+</html>
