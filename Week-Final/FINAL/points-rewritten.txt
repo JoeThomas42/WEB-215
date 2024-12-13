@@ -1,0 +1,17 @@
+
+
+- Retrieve a different 10 movies from different search term and render them to page, clearing out old results and updating header
+
+- Render friendly but accurate and descriptive message in header when API key is bad, clearing out any previous movies and header info
+
+- Save search term to persistent storage, keep saved term in search field, and keep checkbox checked
+
+- Load saved search term on page load, including header, search box/checkbox, and movies
+
+-Enable checkbox so that search can be saved or not. If unchecked, clear term from persistent storage. If checked, save term to persistent storage.
+
+- Intersection Observer to load all movies (10 at a time) so that all movies are rendered (not cleared as more movies render), observes the last movie on the page and stops observing once all movies have rendered
+
+- All functions have complete and accurate DocBlocks
+
+- Code is appropriately modular and spread across multiple functions. No tasks are performed outside of functions. (Only global variable declarations and event listener binding may occur outside of functions.)
