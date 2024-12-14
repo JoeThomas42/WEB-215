@@ -24,18 +24,9 @@ const ELEMENTS = {
 };
 
 //---- Initialization ----//
-ELEMENTS.h1.insertAdjacentElement('afterend', ELEMENTS.h2);
-attachEventListeners();
+ELEMENTS.form.addEventListener('submit', handleForm);
+ELEMENTS.saveCheckbox.addEventListener('change', handleCheckbox);
 loadSavedSearch();
-
-/**
- * Attaches event listeners to form and checkbox.
- * @returns {void}
- */
-function attachEventListeners() {
-  ELEMENTS.form?.addEventListener('submit', handleForm);
-  ELEMENTS.saveCheckbox?.addEventListener('change', handleCheckbox);
-}
 
 /**
  * Loads saved search data from localStorage and performs initial search if saved.
@@ -229,6 +220,7 @@ function handleIntersection(entries, observer, term) {
  * @returns {void}
  */
 function updateHeaderTerm(term, hasResults, total) {
+  ELEMENTS.h1.insertAdjacentElement('afterend', ELEMENTS.h2);
   ELEMENTS.h2.innerHTML = hasResults 
     ? `${total ? `${total} ` : ''}results for <span id="term">${term}</span>`
     : '';
