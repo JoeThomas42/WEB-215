@@ -1,22 +1,30 @@
 'use strict';
 
 //---- Global Variables ----//
-let currentTerm = '';
-let currentPage = 1;
-let totalResults = 0;
-let observer = null;
-const apiKey = '59922ab6';
+const STATE = {
+  currentTerm: '',
+  currentPage: 1,
+  totalResults: 0,
+  observer: null
+};
 
-const form = document.querySelector('form');
-const searchInput = document.querySelector('#s');
-const saveCheckbox = document.querySelector('#save');
-const resultsSection = document.querySelector('#results');
-const loadmoreSection = document.querySelector('#loadmore');
-const h1 = document.querySelector('h1');
-const h2 = document.createElement('h2');
+const API = {
+  key: '59922ab6',
+  baseUrl: 'https://www.omdbapi.com/'
+};
+
+const ELEMENTS = {
+  form: document.querySelector('form'),
+  searchInput: document.querySelector('#s'),
+  saveCheckbox: document.querySelector('#save'),
+  resultsSection: document.querySelector('#results'),
+  loadmoreSection: document.querySelector('#loadmore'),
+  h1: document.querySelector('h1'),
+  h2: document.createElement('h2')
+};
 
 //---- Initialization ----//
-h1.insertAdjacentElement('afterend', h2);
+ELEMENTS.h1.insertAdjacentElement('afterend', ELEMENTS.h2);
 attachEventListeners();
 loadSavedSearch();
 
@@ -25,8 +33,8 @@ loadSavedSearch();
  * @returns {void}
  */
 function attachEventListeners() {
-  if (form) form.addEventListener('submit', handleForm);
-  if (saveCheckbox) saveCheckbox.addEventListener('change', handleCheckbox);
+  ELEMENTS.form?.addEventListener('submit', handleForm);
+  ELEMENTS.saveCheckbox?.addEventListener('change', handleCheckbox);
 }
 
 /**
@@ -34,16 +42,14 @@ function attachEventListeners() {
  * @returns {void}
  */
 function loadSavedSearch() {
-  const savedData = JSON.parse(localStorage.getItem('searchData'));
-  if (!savedData) return;
+  const savedData = JSON.parse(localStorage.getItem('searchData')) || {};
+  const {term = '', shouldSave = false} = savedData;
 
-  currentTerm = savedData.term || '';
-  const shouldSave = savedData.shouldSave || false;
+  STATE.currentTerm = term;
+  ELEMENTS.searchInput.value = term;
+  ELEMENTS.saveCheckbox.checked = shouldSave;
 
-  searchInput.value = currentTerm;
-  saveCheckbox.checked = shouldSave;
-
-  if (currentTerm && shouldSave) startNewSearch(currentTerm);
+  if (term && shouldSave) startNewSearch(term);
 }
 
 /**
@@ -53,246 +59,239 @@ function loadSavedSearch() {
  */
 function handleForm(evt) {
   evt.preventDefault();
-  const term = searchInput.value.trim();
+  const term = ELEMENTS.searchInput.value.trim();
   if (!term) return;
-  currentTerm = term;
-  startNewSearch(currentTerm);
+  
+  STATE.currentTerm = term;
+  startNewSearch(term);
 }
 
 /**
- * Handles changes to the "save my search" checkbox.
+ * Handles checkbox state changes for saving search terms.
  * @returns {void}
  */
 function handleCheckbox() {
-  const shouldSave = saveCheckbox.checked;
-  if (shouldSave && currentTerm) {
-    saveSearchTerm(currentTerm, shouldSave);
-  } else {
-    clearSavedSearch();
-  }
+  const shouldSave = ELEMENTS.saveCheckbox.checked;
+  const action = shouldSave && STATE.currentTerm ? saveSearchTerm : clearSavedSearch;
+  action(STATE.currentTerm, shouldSave);
 }
 
 /**
- * Creates a span element with id="term" containing the search term.
- * @param {string} term - The search term
- * @returns {string} - HTML string with the wrapped term
+ * Fetches movie data from the OMDb API.
+ * @param {string} term - Search term to query
+ * @param {number} page - Page number for pagination
+ * @returns {Promise<Object>} Promise resolving to the API response
  */
-function wrapTermWithId(term) {
-  return `<span id="term">${term}</span>`;
+async function fetchMovies(term, page) {
+  const url = new URL(API.baseUrl);
+  url.searchParams.set('apikey', API.key);
+  url.searchParams.set('s', term);
+  url.searchParams.set('page', page);
+  
+  const response = await fetch(url);
+  return response.json();
 }
 
 /**
- * Starts a new search by clearing old results and fetching movies.
- * @param {string} term - The search term
+ * Initiates a new movie search with the given term.
+ * @param {string} term - Search term to query
  * @returns {void}
  */
 function startNewSearch(term) {
   clearResults();
   updateHeaderTerm(term, false);
 
-  currentPage = 1;
-  totalResults = 0;
+  STATE.currentPage = 1;
+  STATE.totalResults = 0;
 
-  if (saveCheckbox.checked) saveSearchTerm(term, true);
-  fetchMovies(term, currentPage)
-    .then(data => {
-      handleMovieData(data, term);
-    })
-    .catch(err => {
-      displayErrorMessage(`Error fetching movies: ${err.message}`);
-    });
+  if (ELEMENTS.saveCheckbox.checked) {
+    saveSearchTerm(term, true);
+  }
+
+  fetchMovies(term, STATE.currentPage)
+    .then(data => handleMovieData(data, term))
+    .catch(err => displayErrorMessage(err));
 }
 
 /**
- * Fetches movies from OMDb API.
- * @param {string} term - Search term
- * @param {number} page - Page number
- * @returns {Promise<Object>} - Returns a Promise that resolves to the API response object
- */
-async function fetchMovies(term, page) {
-  const url = `https://www.omdbapi.com/?apikey=${apiKey}&s=${encodeURIComponent(term)}&page=${page}`;
-  return await fetch(url).then(res => res.json());
-}
-
-/**
- * Handles the received movie data from the API, rendering it or showing error messages.
- * @param {Object} data - The JSON data returned by the fetchMovies function
- * @param {string} term - The search term used
+ * Processes movie data received from the API.
+ * @param {Object} data - Response data from the API
+ * @param {string} term - Search term used for the query
  * @returns {void}
  */
 function handleMovieData(data, term) {
   if (data.Response === 'False') {
-    if (data.Error === 'Invalid API key!') {
-      displayErrorMessage('Invalid API Key. Please check your configuration.');
-    } else {
-      displayErrorMessage(`No results found for "${wrapTermWithId(term)}".`);
-    }
+    displayErrorMessage(data);
     return;
   }
 
-  const movies = data.Search;
-  const total = parseInt(data.totalResults, 10);
-  if (!movies || movies.length === 0) {
-    displayErrorMessage(`No results found for "${wrapTermWithId(term)}".`);
-    return;
-  }
-
-  totalResults = totalResults || total;
-  renderMovies(movies);
-  updateHeaderTerm(term, true, totalResults);
+  STATE.totalResults = STATE.totalResults || parseInt(data.totalResults, 10);
+  renderMovies(data.Search);
+  updateHeaderTerm(term, true, STATE.totalResults);
   setupIntObserve(term);
 }
 
 /**
- * Renders the given array of movies into the #results section.
- * @param {Object[]} movies - Array of movie objects from OMDb
+ * Renders an array of movies to the results section.
+ * @param {Object[]} movies - Array of movie data objects
  * @returns {void}
  */
 function renderMovies(movies) {
-  movies.forEach(movie => {
-    const section = document.createElement('section');
-    const div = document.createElement('div');
-    const h3 = document.createElement('h3');
-    const p = document.createElement('p');
-    const img = document.createElement('img');
-
-    h3.textContent = movie.Title;
-    p.textContent = `Year released: ${movie.Year.slice(0, 4)}`;
-
-    if (movie.Poster && movie.Poster !== 'N/A') {
-      img.src = movie.Poster;
-      img.alt = `Poster for ${movie.Title}`;
-    } else {
-      img.src = 'https://placehold.co/150x200?text=No Poster';
-      img.alt = `No poster available for ${movie.Title}`;
-    }
-
-    div.appendChild(h3);
-    div.appendChild(p);
-    div.appendChild(img);
-
-    section.appendChild(div);
-    resultsSection.appendChild(section);
-  });
+  const movieElements = movies.map(createMovieElement);
+  ELEMENTS.resultsSection.append(...movieElements);
 }
 
 /**
- * Sets up the Intersection Observer to load more movies if there are more results to fetch.
+ * Creates an element structure for each movie.
+ * @param {Object} movie - Movie data object from the API
+ * @returns {HTMLElement} Section element containing movie information
+ */
+function createMovieElement(movie) {
+  const section = document.createElement('section');
+  const div = document.createElement('div');
+  const h3 = document.createElement('h3');
+  const p = document.createElement('p');
+  const img = document.createElement('img');
+
+  h3.textContent = movie.Title;
+  p.textContent = `Year released: ${movie.Year.slice(0, 4)}`;
+
+  const hasPoster = movie.Poster && movie.Poster !== 'N/A';
+  img.src = hasPoster ? movie.Poster : 'https://placehold.co/150x200?text=No Poster';
+  img.alt = `${hasPoster ? 'Poster' : 'No poster available'} for ${movie.Title}`;
+
+  div.append(h3, p, img);
+  section.appendChild(div);
+  return section;
+}
+
+/**
+ * Handles intersection observer entries for lazy loading.
+ * @param {IntersectionObserverEntry[]} entries - Array of intersection entries
+ * @param {IntersectionObserver} observer - The intersection observer instance
+ * @param {string} term - Current search term
+ * @returns {void}
+ */
+function handleIntersection(entries, observer, term) {
+  const [entry] = entries;
+  if (!entry.isIntersecting) return;
+
+  observer.unobserve(entry.target);
+  STATE.currentPage++;
+
+  fetchMovies(term, STATE.currentPage)
+    .then(data => {
+      if (data.Response === 'False') {
+        displayErrorMessage(data);
+        return;
+      }
+      renderMovies(data.Search);
+      setupIntObserve(term);
+    })
+    .catch(err => displayErrorMessage(err));
+}
+
+/**
+ * Sets up intersection observer for lazy loading.
  * @param {string} term - Current search term
  * @returns {void}
  */
 function setupIntObserve(term) {
-  const loadedMoviesCount = resultsSection.querySelectorAll('section').length;
-  if (loadedMoviesCount >= totalResults) {
-    if (!loadmoreSection.dataset.originalContent) {
-      loadmoreSection.dataset.originalContent = loadmoreSection.innerHTML;
-    }
-
-    loadmoreSection.textContent = "No more results.";
-    loadmoreSection.style.display = 'flex';
-
-    if (observer) {
-      observer.disconnect();
-      observer = null;
-    }
+  const movieSections = ELEMENTS.resultsSection.querySelectorAll('section');
+  const movieCount = movieSections.length;
+  ELEMENTS.loadmoreSection.style.display = 'flex';
   
+  if (movieCount >= STATE.totalResults) {
+    ELEMENTS.loadmoreSection.textContent = "End of results.";
+    
+    if (STATE.observer) {
+      STATE.observer.disconnect();
+      STATE.observer = null;
+    }
+    
     return;
   }
 
-  // Restore original content if it exists
-  if (loadmoreSection.dataset.originalContent) {
-    loadmoreSection.innerHTML = loadmoreSection.dataset.originalContent;
-  }
-  loadmoreSection.style.display = 'flex';
-
-  if (!observer) {
-    observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          observer.unobserve(loadmoreSection); 
-          currentPage++;
-
-          fetchMovies(term, currentPage)
-            .then(data => {
-              if (data.Response === 'False') {
-                displayErrorMessage(`No more results or error: ${data.Error}`);
-                return;
-              }
-
-              renderMovies(data.Search);
-              setupIntObserve(term);
-            })
-            .catch(err => {
-              displayErrorMessage(`Error fetching more movies: ${err.message}`);
-            });
-        }
-      });
-    });
+  if (!STATE.observer) {
+    STATE.observer = new IntersectionObserver(
+      entries => handleIntersection(entries, STATE.observer, term),
+      {threshold: 0, rootMargin: '50px'}
+    );
   }
 
-  observer.observe(loadmoreSection);
+  const lastMovie = movieSections[movieSections.length - 1];
+  if (lastMovie) STATE.observer.observe(lastMovie);
 }
 
 /**
- * Updates the header. h1 always says "OMDb Search".
- * @param {string} term - The search term
- * @param {boolean} hasResults - Whether we have valid results
- * @param {number} [total] - Total number of results (optional)
+ * Updates the header with search term and result count.
+ * @param {string} term - Search term
+ * @param {boolean} hasResults - Whether there are results to display
+ * @param {number} [total] - Total number of results
  * @returns {void}
  */
 function updateHeaderTerm(term, hasResults, total) {
-  if (hasResults && total) {
-    h2.innerHTML = `${total} results for ${wrapTermWithId(term)}`;
-  } else if (hasResults) {
-    h2.innerHTML = `results for ${wrapTermWithId(term)}`;
-  } else {
-    h2.textContent = '';
-  }
+  ELEMENTS.h2.innerHTML = hasResults 
+    ? `${total ? `${total} ` : ''}results for <span id="term">${term}</span>`
+    : '';
 }
 
 /**
- * Displays an error message while keeping h1 static and clearing results.
- * @param {string} msg - The error message to display
+ * Displays an error message and clears results. 
+ * Can handle various input types:
+ *   - If passed a string, it displays that message directly.
+ *   - If passed an Error object, it displays a generic fetch error message.
+ *   - If passed an API response object (with Response === 'False'), 
+ *     it displays a more specific message based on the Error property.
+ * @param {string|Error|Object} errOrData - The error or data object
  * @returns {void}
  */
-function displayErrorMessage(msg) {
-  h2.innerHTML = msg;
+function displayErrorMessage(errOrData) {
+  let msg = 'An unknown error occurred.';
+
+  if (typeof errOrData === 'string') {
+    msg = errOrData;
+  } else if (errOrData instanceof Error) {
+    msg = `Error fetching movies: ${errOrData.message}`;
+  } else if (typeof errOrData === 'object' && errOrData.Response === 'False') {
+    if (errOrData.Error === 'Invalid API key!') {
+      msg = 'Invalid API Key. Please check your configuration.';
+    } else {
+      msg = `No results found for <span id="term">${STATE.currentTerm}</span>.`;
+    }
+  }
+
+  ELEMENTS.h2.innerHTML = msg;
   clearResults();
 }
 
 /**
- * Clears the results section and stops any current observer.
+ * Saves search term and save state to localStorage.
+ * @param {string} term - Search term to save
+ * @param {boolean} shouldSave - Whether to save the term
+ * @returns {void}
+*/
+function saveSearchTerm(term, shouldSave) {
+  localStorage.setItem('searchData', JSON.stringify({term, shouldSave}));
+}
+
+/**
+ * Clears all search results and resets the observer.
  * @returns {void}
  */
 function clearResults() {
-  resultsSection.innerHTML = '';
-
-  if (loadmoreSection.dataset.originalContent) loadmoreSection.innerHTML = loadmoreSection.dataset.originalContent;
-  if (observer) {
-    observer.disconnect();
-    observer = null;
-  }
-
-  loadmoreSection.style.display = 'none';
-}
-
-/**
- * Saves the current search term and the "save" state to localStorage.
- * @param {string} term - The search term
- * @param {boolean} shouldSave - Whether or not to persist the term
- * @returns {void}
- */
-function saveSearchTerm(term, shouldSave) {
-  const data = {
-    term: term,
-    shouldSave: shouldSave
-  };
+  ELEMENTS.resultsSection.innerHTML = '';
+  ELEMENTS.loadmoreSection.textContent = "Loading More...";
+  ELEMENTS.loadmoreSection.style.display = 'none';
   
-  localStorage.setItem('searchData', JSON.stringify(data));
+  if (STATE.observer) {
+    STATE.observer.disconnect();
+    STATE.observer = null;
+  }
 }
 
 /**
- * Clears the saved search term from localStorage.
+ * Clears saved search data from localStorage.
  * @returns {void}
  */
 function clearSavedSearch() {

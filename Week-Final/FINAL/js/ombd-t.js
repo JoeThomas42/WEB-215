@@ -1,6 +1,6 @@
 'use strict';
 
-//---- Organized Global Variables ----//
+//---- Global Variables ----//
 const STATE = {
   currentTerm: '',
   currentPage: 1,
@@ -43,7 +43,7 @@ function attachEventListeners() {
  */
 function loadSavedSearch() {
   const savedData = JSON.parse(localStorage.getItem('searchData')) || {};
-  const { term = '', shouldSave = false } = savedData;
+  const {term = '', shouldSave = false} = savedData;
 
   STATE.currentTerm = term;
   ELEMENTS.searchInput.value = term;
@@ -77,20 +77,10 @@ function handleCheckbox() {
 }
 
 /**
- * Wraps a search term in a span element with id="term".
- * @param {string} term - The search term to wrap
- * @returns {string} HTML string containing the wrapped term
- */
-function wrapTermWithId(term) {
-  return `<span id="term">${term}</span>`;
-}
-
-/**
  * Fetches movie data from the OMDb API.
  * @param {string} term - Search term to query
  * @param {number} page - Page number for pagination
  * @returns {Promise<Object>} Promise resolving to the API response
- * @throws {Error} When the fetch request fails
  */
 async function fetchMovies(term, page) {
   const url = new URL(API.baseUrl);
@@ -114,13 +104,11 @@ function startNewSearch(term) {
   STATE.currentPage = 1;
   STATE.totalResults = 0;
 
-  if (ELEMENTS.saveCheckbox.checked) {
-    saveSearchTerm(term, true);
-  }
+  if (ELEMENTS.saveCheckbox.checked) saveSearchTerm(term, true);
 
   fetchMovies(term, STATE.currentPage)
     .then(data => handleMovieData(data, term))
-    .catch(err => displayErrorMessage(`Error fetching movies: ${err.message}`));
+    .catch(err => displayErrorMessage(err));
 }
 
 /**
@@ -131,32 +119,29 @@ function startNewSearch(term) {
  */
 function handleMovieData(data, term) {
   if (data.Response === 'False') {
-    displayErrorMessage(
-      data.Error === 'Invalid API key!' 
-        ? 'Invalid API Key. Please check your configuration.'
-        : `No results found for "${wrapTermWithId(term)}".`
-    );
-    return;
-  }
-
-  const movies = data.Search;
-  if (!movies?.length) {
-    displayErrorMessage(`No results found for "${wrapTermWithId(term)}".`);
+    displayErrorMessage(data);
     return;
   }
 
   STATE.totalResults = STATE.totalResults || parseInt(data.totalResults, 10);
-  renderMovies(movies);
+  renderMovies(data.Search);
   updateHeaderTerm(term, true, STATE.totalResults);
   setupIntObserve(term);
 }
 
 /**
- * Creates a DOM element structure for each movie.
+ * Renders an array of movies to the results section.
+ * @param {Object[]} movies - Array of movie data objects
+ * @returns {void}
+ */
+function renderMovies(movies) {
+  const movieElements = movies.map(createMovieElement);
+  ELEMENTS.resultsSection.append(...movieElements);
+}
+
+/**
+ * Creates an element structure for each movie.
  * @param {Object} movie - Movie data object from the API
- * @param {string} movie.Title - Title of the movie
- * @param {string} movie.Year - Release year of the movie
- * @param {string} movie.Poster - URL of the movie poster
  * @returns {HTMLElement} Section element containing movie information
  */
 function createMovieElement(movie) {
@@ -179,13 +164,35 @@ function createMovieElement(movie) {
 }
 
 /**
- * Renders an array of movies to the results section.
- * @param {Object[]} movies - Array of movie data objects
+ * Sets up intersection observer for lazy loading.
+ * @param {string} term - Current search term
  * @returns {void}
  */
-function renderMovies(movies) {
-  const movieElements = movies.map(createMovieElement);
-  ELEMENTS.resultsSection.append(...movieElements);
+function setupIntObserve(term) {
+  const movieSections = ELEMENTS.resultsSection.querySelectorAll('section');
+  const movieCount = movieSections.length;
+  ELEMENTS.loadmoreSection.style.display = 'flex';
+  
+  if (movieCount >= STATE.totalResults) {
+    ELEMENTS.loadmoreSection.textContent = "End of results.";
+    
+    if (STATE.observer) {
+      STATE.observer.disconnect();
+      STATE.observer = null;
+    }
+    
+    return;
+  }
+
+  if (!STATE.observer) {
+    STATE.observer = new IntersectionObserver(
+      entries => handleIntersection(entries, STATE.observer, term),
+      {threshold: 0, rootMargin: '50px'}
+    );
+  }
+
+  const lastMovie = movieSections[movieSections.length - 1];
+  if (lastMovie) STATE.observer.observe(lastMovie);
 }
 
 /**
@@ -199,78 +206,70 @@ function handleIntersection(entries, observer, term) {
   const [entry] = entries;
   if (!entry.isIntersecting) return;
 
-  observer.unobserve(ELEMENTS.loadmoreSection);
+  observer.unobserve(entry.target);
   STATE.currentPage++;
 
   fetchMovies(term, STATE.currentPage)
     .then(data => {
       if (data.Response === 'False') {
-        displayErrorMessage(`No more results or error: ${data.Error}`);
+        displayErrorMessage(data);
         return;
       }
       renderMovies(data.Search);
       setupIntObserve(term);
     })
-    .catch(err => displayErrorMessage(`Error fetching more movies: ${err.message}`));
-}
-
-/**
- * Sets up intersection observer for lazy loading.
- * @param {string} term - Current search term
- * @returns {void}
- */
-function setupIntObserve(term) {
-  const loadedMoviesCount = ELEMENTS.resultsSection.querySelectorAll('section').length;
-  
-  if (loadedMoviesCount >= STATE.totalResults) {
-    if (!ELEMENTS.loadmoreSection.dataset.originalContent) {
-      ELEMENTS.loadmoreSection.dataset.originalContent = ELEMENTS.loadmoreSection.innerHTML;
-    }
-    ELEMENTS.loadmoreSection.textContent = "No more results.";
-    ELEMENTS.loadmoreSection.style.display = 'flex';
-    
-    if (STATE.observer) {
-      STATE.observer.disconnect();
-      STATE.observer = null;
-    }
-    return;
-  }
-
-  if (ELEMENTS.loadmoreSection.dataset.originalContent) {
-    ELEMENTS.loadmoreSection.innerHTML = ELEMENTS.loadmoreSection.dataset.originalContent;
-  }
-  ELEMENTS.loadmoreSection.style.display = 'flex';
-
-  if (!STATE.observer) {
-    STATE.observer = new IntersectionObserver(
-      entries => handleIntersection(entries, STATE.observer, term)
-    );
-  }
-
-  STATE.observer.observe(ELEMENTS.loadmoreSection);
+    .catch(err => displayErrorMessage(err));
 }
 
 /**
  * Updates the header with search term and result count.
  * @param {string} term - Search term
  * @param {boolean} hasResults - Whether there are results to display
- * @param {number} [total] - Total number of results (optional)
+ * @param {number} [total] - Total number of results
  * @returns {void}
  */
 function updateHeaderTerm(term, hasResults, total) {
   ELEMENTS.h2.innerHTML = hasResults 
-    ? `${total ? `${total} ` : ''}results for ${wrapTermWithId(term)}`
+    ? `${total ? `${total} ` : ''}results for <span id="term">${term}</span>`
     : '';
 }
 
 /**
- * Displays an error message and clears results.
- * @param {string} msg - Error message to display
+ * Displays an error message based on type and clears results. 
+ * @param {string|Error|Object} errOrData - The error or data object
  * @returns {void}
  */
-function displayErrorMessage(msg) {
+function displayErrorMessage(errOrData) {
+  let msg;
+
+  switch (true) {
+    case (typeof errOrData === 'string'):
+      msg = errOrData;
+      break;
+    case (errOrData instanceof Error):
+      msg = `Error fetching movies: ${errOrData.message}`;
+      break;
+    case (typeof errOrData === 'object' && errOrData.Response === 'False'):
+      msg = (errOrData.Error === 'Invalid API key!')
+        ? 'Invalid API Key. Check your configuration.'
+        : `No results found for <span id="term">${STATE.currentTerm}</span>.`;
+      break;
+    default:
+      msg = 'An unknown error occurred.';
+  }
+
   ELEMENTS.h2.innerHTML = msg;
   clearResults();
+}
+
+/**
+ * Saves search term and save state to localStorage.
+ * @param {string} term - Search term to save
+ * @param {boolean} shouldSave - Whether to save the term
+ * @returns {void}
+*/
+function saveSearchTerm(term, shouldSave) {
+  localStorage.setItem('searchData', JSON.stringify({term, shouldSave}));
 }
 
 /**
@@ -279,27 +278,13 @@ function displayErrorMessage(msg) {
  */
 function clearResults() {
   ELEMENTS.resultsSection.innerHTML = '';
-
-  if (ELEMENTS.loadmoreSection.dataset.originalContent) {
-    ELEMENTS.loadmoreSection.innerHTML = ELEMENTS.loadmoreSection.dataset.originalContent;
-  }
+  ELEMENTS.loadmoreSection.textContent = "Loading More...";
+  ELEMENTS.loadmoreSection.style.display = 'none';
   
   if (STATE.observer) {
     STATE.observer.disconnect();
     STATE.observer = null;
   }
-
-  ELEMENTS.loadmoreSection.style.display = 'none';
-}
-
-/**
- * Saves search term and save state to localStorage.
- * @param {string} term - Search term to save
- * @param {boolean} shouldSave - Whether to save the term
- * @returns {void}
- */
-function saveSearchTerm(term, shouldSave) {
-  localStorage.setItem('searchData', JSON.stringify({ term, shouldSave }));
 }
 
 /**
